@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0eee9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: #fff;
+            border-bottom: 1.5px solid #e0ddd8;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .board-title {
+            font-family: 'Kalam', cursive;
+            font-size: 20px;
+            color: #2a2118;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            flex: 1;
+        }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: #2a2118;
+            color: #fff;
+            border: none;
+            border-radius: 22px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover {
+            background: #3d3020;
+        }
+
+        .add-btn:active {
+            transform: scale(0.97);
+        }
+
+        .add-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Color picker dots in topbar */
+        .color-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .color-dot.selected {
+            border-color: #2a2118;
+            transform: scale(1.15);
+        }
+
+        /* Board */
+        .board {
+            padding: 72px 24px 40px;
+            columns: 4 260px;
+            column-gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .board {
+                columns: 2 150px;
+                padding: 72px 12px 40px;
+                column-gap: 10px;
+            }
+        }
+
+        /* Note card */
+        .note-card {
+            break-inside: avoid;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            padding: 0;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s, transform 0.2s;
+            animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .note-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.85) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .note-inner {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Mini toolbar inside note */
+        .note-toolbar {
+            display: none;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px 4px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+        }
+
+        .note-card:focus-within .note-toolbar {
+            display: flex;
+        }
+
+        .nt-btn {
+            background: none;
+            border: none;
+            padding: 3px 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.45);
+            transition: background 0.15s, color 0.15s;
+            line-height: 1;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .nt-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: rgba(0, 0, 0, 0.8);
+        }
+
+        .nt-btn.italic {
+            font-style: italic;
+        }
+
+        .nt-btn.underline {
+            text-decoration: underline;
+        }
+
+        .nt-btn.strike {
+            text-decoration: line-through;
+        }
+
+        .nt-sep {
+            width: 1px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.12);
+            margin: 0 2px;
+        }
+
+        /* Contenteditable area */
+        .note-text {
+            padding: 14px 14px 40px;
+            min-height: 90px;
+            font-family: 'Kalam', cursive;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2a2118;
+            outline: none;
+            word-break: break-word;
+        }
+
+        .note-text:empty::before {
+            content: attr(data-placeholder);
+            color: rgba(42, 33, 24, 0.3);
+            pointer-events: none;
+        }
+
+        /* Note footer */
+        .note-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .note-card:hover .note-footer,
+        .note-card:focus-within .note-footer {
+            opacity: 1;
+        }
+
+        .note-time {
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.3);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .note-action-btn {
+            background: rgba(0, 0, 0, 0.07);
+            border: none;
+            border-radius: 4px;
+            padding: 3px 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.4);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .note-action-btn:hover {
+            background: rgba(0, 0, 0, 0.14);
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .note-action-btn.del:hover {
+            background: #ffe0e0;
+            color: #c0392b;
+        }
+
+        /* Empty state */
+        .empty-state {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: rgba(42, 33, 24, 0.25);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .empty-state .big {
+            font-size: 56px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            font-family: 'Kalam', cursive;
+        }
+
+        /* Confirm dialog */
+        .dialog-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeOverlay 0.15s ease;
+        }
+
+        @keyframes fadeOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .dialog-box {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px 28px 22px;
+            width: 300px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+            animation: slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dialog-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .dialog-title {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2a2118;
+            margin-bottom: 6px;
+        }
+
+        .dialog-msg {
+            font-size: 13px;
+            color: rgba(42, 33, 24, 0.5);
+            margin-bottom: 22px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .dialog-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .dialog-btn {
+            flex: 1;
+            padding: 9px 0;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .dialog-btn:active {
+            transform: scale(0.97);
+        }
+
+        .dialog-btn.cancel {
+            background: #f0eee9;
+            color: #2a2118;
+        }
+
+        .dialog-btn.cancel:hover {
+            background: #e4e1db;
+        }
+
+        .dialog-btn.confirm-del {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .dialog-btn.confirm-del:hover {
+            background: #dc2626;
+        }
+
+        /* Note colors */
+        .c-yellow {
+            background: #fef9c3;
+        }
+
+        .c-pink {
+            background: #fce7f3;
+        }
+
+        .c-green {
+            background: #dcfce7;
+        }
+
+        .c-blue {
+            background: #dbeafe;
+        }
+
+        .c-orange {
+            background: #ffedd5;
+        }
+
+        .c-purple {
+            background: #ede9fe;
+        }
+
+        .c-white {
+            background: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="board-title">📋 My Board</div>
+        <div class="color-dots" id="color-dots">
+            <div class="color-dot selected" data-color="c-yellow" style="background:#fef9c3" title="Yellow"></div>
+            <div class="color-dot" data-color="c-pink" style="background:#fce7f3" title="Pink"></div>
+            <div class="color-dot" data-color="c-green" style="background:#dcfce7" title="Green"></div>
+            <div class="color-dot" data-color="c-blue" style="background:#dbeafe" title="Blue"></div>
+            <div class="color-dot" data-color="c-orange" style="background:#ffedd5" title="Orange"></div>
+            <div class="color-dot" data-color="c-purple" style="background:#ede9fe" title="Purple"></div>
+            <div class="color-dot" data-color="c-white" style="background:#fff; border:1.5px solid #ddd" title="White">
+            </div>
+        </div>
+        <button class="add-btn" onclick="addNote()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add Note
+        </button>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="empty-state" id="empty-state">
+        <div class="big">📝</div>
+        <p>Click "Add Note" to get started!</p>
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('padlet_notes') || '[]');
+        let selectedColor = 'c-yellow';
+
+        const placeholders = [
+            'Write something…',
+            'A thought…',
+            'Note to self…',
+            'Ideas here…',
+            'Don\'t forget…',
+            'Reminder…'
+        ];
+
+        // Color dot selection
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                dot.classList.add('selected');
+                selectedColor = dot.dataset.color;
+            });
+        });
+
+        function formatTime(ts) {
+            const d = new Date(ts);
+            const now = new Date();
+            const diff = now - d;
+            if (diff < 60000) return 'just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function saveNotes() {
+            localStorage.setItem('padlet_notes', JSON.stringify(notes));
+        }
+
+        function addNote() {
+            const note = {
+                id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+                color: selectedColor,
+                content: '',
+                created: Date.now(),
+                updated: Date.now()
+            };
+            notes.unshift(note);
+            saveNotes();
+            renderNote(note, true);
+            updateEmpty();
+        }
+
+        function renderNote(note, focus) {
+            const board = document.getElementById('board');
+            const ph = placeholders[Math.floor(Math.random() * placeholders.length)];
+
+            const card = document.createElement('div');
+            card.className = `note-card ${note.color}`;
+            card.dataset.id = note.id;
+
+            card.innerHTML = `
+      <div class="note-inner">
+        <div class="note-toolbar">
+          <button class="nt-btn" onmousedown="e=>e.preventDefault()" onclick="fmt('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="nt-btn italic" onclick="fmt('italic')" title="Italic (Ctrl+I)">I</button>
+          <button class="nt-btn underline" onclick="fmt('underline')" title="Underline (Ctrl+U)">U</button>
+          <button class="nt-btn strike" onclick="fmt('strikeThrough')" title="Strikethrough">S</button>
+          <div class="nt-sep"></div>
+          <button class="nt-btn" onclick="fmt('insertUnorderedList')" title="Bullet list">• List</button>
+        </div>
+        <div class="note-text" contenteditable="true" data-placeholder="${ph}" data-id="${note.id}">${note.content}</div>
+        <div class="note-footer">
+          <span class="note-time">${formatTime(note.updated)}</span>
+          <div class="note-actions">
+            <button class="note-action-btn del" onclick="deleteNote('${note.id}')" title="Delete">🗑</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+            board.insertBefore(card, board.firstChild);
+
+            const textEl = card.querySelector('.note-text');
+            textEl.addEventListener('input', () => {
+                const n = notes.find(x => x.id === note.id);
+                if (n) {
+                    n.content = textEl.innerHTML;
+                    n.updated = Date.now();
+                    saveNotes();
+                    card.querySelector('.note-time').textContent = formatTime(n.updated);
+                }
+            });
+
+            if (focus) {
+                setTimeout(() => {
+                    textEl.focus();
+                    // place cursor at end
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(textEl);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }, 50);
+            }
+        }
+
+        function fmt(cmd) {
+            document.execCommand(cmd, false, null);
+        }
+
+        function deleteNote(id) {
+            // Show confirm dialog
+            const overlay = document.createElement('div');
+            overlay.className = 'dialog-overlay';
+            overlay.innerHTML = `
+      <div class="dialog-box">
+        <div class="dialog-icon">🗑️</div>
+        <div class="dialog-title">Delete this note?</div>
+        <div class="dialog-msg">This can't be undone.</div>
+        <div class="dialog-btns">
+          <button class="dialog-btn cancel" id="dlg-cancel">Cancel</button>
+          <button class="dialog-btn confirm-del" id="dlg-confirm">Delete</button>
+        </div>
+      </div>
+    `;
+            document.body.appendChild(overlay);
+
+            // Focus confirm button
+            setTimeout(() => overlay.querySelector('#dlg-confirm').focus(), 50);
+
+            overlay.querySelector('#dlg-cancel').onclick = () => overlay.remove();
+            overlay.querySelector('#dlg-confirm').onclick = () => {
+                overlay.remove();
+                notes = notes.filter(n => n.id !== id);
+                saveNotes();
+                const card = document.querySelector(`.note-card[data-id="${id}"]`);
+                if (card) {
+                    card.style.transition = 'opacity 0.2s, transform 0.2s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.85)';
+                    setTimeout(() => card.remove(), 200);
+                }
+                updateEmpty();
+            };
+
+            // Close on overlay click
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+            // Close on Escape
+            const onKey = e => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); } };
+            document.addEventListener('keydown', onKey);
+        }
+
+        function updateEmpty() {
+            document.getElementById('empty-state').style.display = notes.length === 0 ? 'block' : 'none';
+        }
+
+        // Render existing notes
+        function init() {
+            notes.forEach(note => renderNote(note, false));
+            updateEmpty();
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

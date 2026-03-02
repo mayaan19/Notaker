@@ -10,7 +10,17 @@
         rel="stylesheet">
     <style>
         :root {
-            --bg: #f0eee9;
+            --bg: #0f0f0f;
+            --topbar: #161616;
+            --topbar-border: #2a2a2a;
+            --btn-color: rgba(255, 255, 255, 0.45);
+            --btn-hover-bg: rgba(255, 255, 255, 0.1);
+            --btn-hover-color: rgba(255, 255, 255, 0.9);
+            --sep-color: rgba(255, 255, 255, 0.1);
+            --empty-color: rgba(255, 255, 255, 0.12);
+            --dialog-bg: #1e1e1e;
+            --dialog-title: #f0f0f0;
+            --dialog-msg: rgba(240, 240, 240, 0.45);
         }
 
         * {
@@ -26,29 +36,28 @@
             overflow-x: hidden;
         }
 
-        /* Top bar */
+        /* TOPBAR */
         .topbar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: 52px;
-            background: #fff;
-            border-bottom: 1.5px solid #e0ddd8;
+            background: var(--topbar);
+            border-bottom: 1.5px solid var(--topbar-border);
             display: flex;
             align-items: center;
             padding: 0 20px;
             gap: 12px;
             z-index: 1000;
-            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
         }
 
         .board-title {
             font-family: 'Kalam', cursive;
             font-size: 20px;
-            color: #2a2118;
+            color: #e8e0d0;
             font-weight: 700;
-            letter-spacing: 0.01em;
             flex: 1;
         }
 
@@ -57,20 +66,20 @@
             align-items: center;
             gap: 6px;
             padding: 7px 16px;
-            background: #2a2118;
-            color: #fff;
+            background: #e8e0d0;
+            color: #111;
             border: none;
             border-radius: 22px;
             font-family: 'DM Sans', sans-serif;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
             white-space: nowrap;
         }
 
         .add-btn:hover {
-            background: #3d3020;
+            background: #fff;
         }
 
         .add-btn:active {
@@ -82,7 +91,6 @@
             height: 14px;
         }
 
-        /* Color picker dots in topbar */
         .color-dots {
             display: flex;
             gap: 6px;
@@ -103,11 +111,11 @@
         }
 
         .color-dot.selected {
-            border-color: #2a2118;
+            border-color: #e8e0d0;
             transform: scale(1.15);
         }
 
-        /* Board */
+        /* BOARD */
         .board {
             padding: 72px 24px 40px;
             columns: 4 260px;
@@ -122,22 +130,21 @@
             }
         }
 
-        /* Note card */
+        /* NOTE CARD */
         .note-card {
             break-inside: avoid;
             margin-bottom: 16px;
-            border-radius: 10px;
-            padding: 0;
+            border-radius: 12px;
             position: relative;
             display: inline-block;
             width: 100%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
             transition: box-shadow 0.2s, transform 0.2s;
             animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .note-card:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75);
             transform: translateY(-2px);
         }
 
@@ -154,17 +161,19 @@
         }
 
         .note-inner {
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
         }
 
-        /* Mini toolbar inside note */
+        /* TOOLBAR */
         .note-toolbar {
             display: none;
             align-items: center;
             gap: 2px;
-            padding: 6px 8px 4px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+            padding: 6px 8px 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            background: rgba(0, 0, 0, 0.06);
         }
 
         .note-card:focus-within .note-toolbar {
@@ -174,19 +183,20 @@
         .nt-btn {
             background: none;
             border: none;
-            padding: 3px 5px;
+            padding: 3px 6px;
             border-radius: 3px;
             cursor: pointer;
             font-size: 11px;
             font-weight: 700;
-            color: rgba(0, 0, 0, 0.45);
+            color: rgba(0, 0, 0, 0.4);
             transition: background 0.15s, color 0.15s;
             line-height: 1;
             font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
         }
 
         .nt-btn:hover {
-            background: rgba(0, 0, 0, 0.08);
+            background: rgba(0, 0, 0, 0.1);
             color: rgba(0, 0, 0, 0.8);
         }
 
@@ -202,38 +212,61 @@
             text-decoration: line-through;
         }
 
+        .nt-btn.link-btn {
+            color: #1d4ed8;
+        }
+
+        .nt-btn.link-btn:hover {
+            background: rgba(29, 78, 216, 0.1);
+            color: #1e40af;
+        }
+
+        .nt-btn.unlink-btn {
+            color: #b91c1c;
+        }
+
+        .nt-btn.unlink-btn:hover {
+            background: rgba(185, 28, 28, 0.1);
+            color: #991b1b;
+        }
+
+        .nt-btn.undo-redo {
+            font-size: 13px;
+        }
+
         .nt-sep {
             width: 1px;
             height: 14px;
             background: rgba(0, 0, 0, 0.12);
             margin: 0 2px;
+            flex-shrink: 0;
         }
 
-        /* Contenteditable area */
+        /* NOTE TEXT */
         .note-text {
-            padding: 14px 14px 40px;
+            padding: 13px 13px 38px;
             min-height: 90px;
             font-family: 'Kalam', cursive;
             font-size: 15px;
-            line-height: 1.6;
-            color: #2a2118;
+            line-height: 1.65;
+            color: #1a1008;
             outline: none;
             word-break: break-word;
         }
 
         .note-text:empty::before {
             content: attr(data-placeholder);
-            color: rgba(42, 33, 24, 0.3);
+            color: rgba(26, 16, 8, 0.28);
             pointer-events: none;
         }
 
-        /* Note footer */
+        /* NOTE FOOTER */
         .note-footer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 6px 10px;
+            padding: 5px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -248,44 +281,39 @@
 
         .note-time {
             font-size: 10px;
-            color: rgba(0, 0, 0, 0.3);
+            color: rgba(26, 16, 8, 0.3);
             font-family: 'DM Sans', sans-serif;
-        }
-
-        .note-actions {
-            display: flex;
-            gap: 4px;
         }
 
         .note-action-btn {
             background: rgba(0, 0, 0, 0.07);
             border: none;
             border-radius: 4px;
-            padding: 3px 6px;
+            padding: 3px 7px;
             cursor: pointer;
             font-size: 11px;
-            color: rgba(0, 0, 0, 0.4);
+            color: rgba(0, 0, 0, 0.35);
             transition: background 0.15s, color 0.15s;
         }
 
         .note-action-btn:hover {
-            background: rgba(0, 0, 0, 0.14);
-            color: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.13);
+            color: rgba(0, 0, 0, 0.65);
         }
 
         .note-action-btn.del:hover {
-            background: #ffe0e0;
-            color: #c0392b;
+            background: #fecaca;
+            color: #b91c1c;
         }
 
-        /* Empty state */
+        /* EMPTY STATE */
         .empty-state {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            color: rgba(42, 33, 24, 0.25);
+            color: var(--empty-color);
             pointer-events: none;
             user-select: none;
         }
@@ -300,19 +328,19 @@
             font-family: 'Kalam', cursive;
         }
 
-        /* Confirm dialog */
+        /* CONFIRM DIALOG */
         .dialog-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.65);
             z-index: 2000;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeOverlay 0.15s ease;
+            animation: fadeO 0.15s ease;
         }
 
-        @keyframes fadeOverlay {
+        @keyframes fadeO {
             from {
                 opacity: 0;
             }
@@ -323,16 +351,17 @@
         }
 
         .dialog-box {
-            background: #fff;
+            background: var(--dialog-bg);
+            border: 1px solid #333;
             border-radius: 14px;
             padding: 28px 28px 22px;
             width: 300px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
-            animation: slideUp 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            animation: slideU 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
             text-align: center;
         }
 
-        @keyframes slideUp {
+        @keyframes slideU {
             from {
                 opacity: 0;
                 transform: scale(0.9) translateY(10px);
@@ -350,24 +379,21 @@
         }
 
         .dialog-title {
-            font-family: 'DM Sans', sans-serif;
             font-size: 16px;
             font-weight: 600;
-            color: #2a2118;
+            color: var(--dialog-title);
             margin-bottom: 6px;
         }
 
         .dialog-msg {
             font-size: 13px;
-            color: rgba(42, 33, 24, 0.5);
+            color: var(--dialog-msg);
             margin-bottom: 22px;
-            font-family: 'DM Sans', sans-serif;
         }
 
         .dialog-btns {
             display: flex;
             gap: 10px;
-            justify-content: center;
         }
 
         .dialog-btn {
@@ -387,12 +413,12 @@
         }
 
         .dialog-btn.cancel {
-            background: #f0eee9;
-            color: #2a2118;
+            background: #2a2a2a;
+            color: #ccc;
         }
 
         .dialog-btn.cancel:hover {
-            background: #e4e1db;
+            background: #333;
         }
 
         .dialog-btn.confirm-del {
@@ -404,33 +430,46 @@
             background: #dc2626;
         }
 
-        /* Note colors */
+        /* LINKS */
+        .note-link {
+            color: #1d4ed8;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+            word-break: break-all;
+        }
+
+        .note-link:hover {
+            color: #1e40af;
+        }
+
+        /* NOTE COLORS */
         .c-yellow {
-            background: #fef9c3;
+            background: #fef08a;
         }
 
         .c-pink {
-            background: #fce7f3;
+            background: #fbcfe8;
         }
 
         .c-green {
-            background: #dcfce7;
+            background: #bbf7d0;
         }
 
         .c-blue {
-            background: #dbeafe;
+            background: #bfdbfe;
         }
 
         .c-orange {
-            background: #ffedd5;
+            background: #fed7aa;
         }
 
         .c-purple {
-            background: #ede9fe;
+            background: #ddd6fe;
         }
 
         .c-white {
-            background: #ffffff;
+            background: #f5f5f5;
         }
     </style>
 </head>
@@ -440,14 +479,14 @@
     <div class="topbar">
         <div class="board-title">📋 My Board</div>
         <div class="color-dots" id="color-dots">
-            <div class="color-dot selected" data-color="c-yellow" style="background:#fef9c3" title="Yellow"></div>
-            <div class="color-dot" data-color="c-pink" style="background:#fce7f3" title="Pink"></div>
-            <div class="color-dot" data-color="c-green" style="background:#dcfce7" title="Green"></div>
-            <div class="color-dot" data-color="c-blue" style="background:#dbeafe" title="Blue"></div>
-            <div class="color-dot" data-color="c-orange" style="background:#ffedd5" title="Orange"></div>
-            <div class="color-dot" data-color="c-purple" style="background:#ede9fe" title="Purple"></div>
-            <div class="color-dot" data-color="c-white" style="background:#fff; border:1.5px solid #ddd" title="White">
-            </div>
+            <div class="color-dot selected" data-color="c-yellow" style="background:#fef08a" title="Yellow"></div>
+            <div class="color-dot" data-color="c-pink" style="background:#fbcfe8" title="Pink"></div>
+            <div class="color-dot" data-color="c-green" style="background:#bbf7d0" title="Green"></div>
+            <div class="color-dot" data-color="c-blue" style="background:#bfdbfe" title="Blue"></div>
+            <div class="color-dot" data-color="c-orange" style="background:#fed7aa" title="Orange"></div>
+            <div class="color-dot" data-color="c-purple" style="background:#ddd6fe" title="Purple"></div>
+            <div class="color-dot" data-color="c-white" style="background:#f5f5f5;border:1.5px solid #555"
+                title="White"></div>
         </div>
         <button class="add-btn" onclick="addNote()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -459,26 +498,17 @@
     </div>
 
     <div class="board" id="board"></div>
-
     <div class="empty-state" id="empty-state">
         <div class="big">📝</div>
         <p>Click "Add Note" to get started!</p>
     </div>
 
     <script>
-        let notes = JSON.parse(localStorage.getItem('padlet_notes') || '[]');
+        let notes = JSON.parse(localStorage.getItem('padlet_dark_v1') || '[]');
         let selectedColor = 'c-yellow';
 
-        const placeholders = [
-            'Write something…',
-            'A thought…',
-            'Note to self…',
-            'Ideas here…',
-            'Don\'t forget…',
-            'Reminder…'
-        ];
+        const placeholders = ['Write something…', 'A thought…', 'Note to self…', 'Ideas here…', 'Don\'t forget…', 'Reminder…'];
 
-        // Color dot selection
         document.querySelectorAll('.color-dot').forEach(dot => {
             dot.addEventListener('click', () => {
                 document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
@@ -488,27 +518,17 @@
         });
 
         function formatTime(ts) {
-            const d = new Date(ts);
-            const now = new Date();
-            const diff = now - d;
+            const d = new Date(ts), now = new Date(), diff = now - d;
             if (diff < 60000) return 'just now';
             if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
             if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
-        function saveNotes() {
-            localStorage.setItem('padlet_notes', JSON.stringify(notes));
-        }
+        function saveNotes() { localStorage.setItem('padlet_dark_v1', JSON.stringify(notes)); }
 
         function addNote() {
-            const note = {
-                id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-                color: selectedColor,
-                content: '',
-                created: Date.now(),
-                updated: Date.now()
-            };
+            const note = { id: Date.now().toString(36) + Math.random().toString(36).slice(2), color: selectedColor, content: '', created: Date.now(), updated: Date.now() };
             notes.unshift(note);
             saveNotes();
             renderNote(note, true);
@@ -518,7 +538,6 @@
         function renderNote(note, focus) {
             const board = document.getElementById('board');
             const ph = placeholders[Math.floor(Math.random() * placeholders.length)];
-
             const card = document.createElement('div');
             card.className = `note-card ${note.color}`;
             card.dataset.id = note.id;
@@ -526,56 +545,128 @@
             card.innerHTML = `
       <div class="note-inner">
         <div class="note-toolbar">
-          <button class="nt-btn" onmousedown="e=>e.preventDefault()" onclick="fmt('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
-          <button class="nt-btn italic" onclick="fmt('italic')" title="Italic (Ctrl+I)">I</button>
-          <button class="nt-btn underline" onclick="fmt('underline')" title="Underline (Ctrl+U)">U</button>
-          <button class="nt-btn strike" onclick="fmt('strikeThrough')" title="Strikethrough">S</button>
+          <button class="nt-btn" onmousedown="return false" onclick="fmt('bold')"><b>B</b></button>
+          <button class="nt-btn italic" onmousedown="return false" onclick="fmt('italic')">I</button>
+          <button class="nt-btn underline" onmousedown="return false" onclick="fmt('underline')">U</button>
+          <button class="nt-btn strike" onmousedown="return false" onclick="fmt('strikeThrough')">S</button>
           <div class="nt-sep"></div>
-          <button class="nt-btn" onclick="fmt('insertUnorderedList')" title="Bullet list">• List</button>
+          <button class="nt-btn" onmousedown="return false" onclick="fmt('insertUnorderedList')">• List</button>
+          <div class="nt-sep"></div>
+          <button class="nt-btn link-btn" onmousedown="return false" onclick="insertLink(this)" title="Select text → click to linkify">🔗 Link</button>
+          <button class="nt-btn unlink-btn" onmousedown="return false" onclick="removeLink(this)" title="Click inside a link → click to unlink">✂ Unlink</button>
+          <div class="nt-sep"></div>
+          <button class="nt-btn undo-redo" onmousedown="return false" onclick="fmt('undo')" title="Undo (Ctrl+Z)">↩</button>
+          <button class="nt-btn undo-redo" onmousedown="return false" onclick="fmt('redo')" title="Redo (Ctrl+Y)">↪</button>
         </div>
         <div class="note-text" contenteditable="true" data-placeholder="${ph}" data-id="${note.id}">${note.content}</div>
         <div class="note-footer">
           <span class="note-time">${formatTime(note.updated)}</span>
           <div class="note-actions">
-            <button class="note-action-btn del" onclick="deleteNote('${note.id}')" title="Delete">🗑</button>
+            <button class="note-action-btn del" onclick="deleteNote('${note.id}')">🗑</button>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
 
             board.insertBefore(card, board.firstChild);
-
             const textEl = card.querySelector('.note-text');
+
             textEl.addEventListener('input', () => {
                 const n = notes.find(x => x.id === note.id);
-                if (n) {
-                    n.content = textEl.innerHTML;
-                    n.updated = Date.now();
-                    saveNotes();
-                    card.querySelector('.note-time').textContent = formatTime(n.updated);
-                }
+                if (n) { n.content = textEl.innerHTML; n.updated = Date.now(); saveNotes(); card.querySelector('.note-time').textContent = formatTime(n.updated); }
+            });
+
+            textEl.addEventListener('blur', () => linkify(textEl, note.id));
+
+            textEl.addEventListener('click', (e) => {
+                const a = e.target.closest('a.note-link');
+                if (a) { e.preventDefault(); e.stopPropagation(); window.open(a.href, '_blank', 'noopener'); }
             });
 
             if (focus) {
                 setTimeout(() => {
                     textEl.focus();
-                    // place cursor at end
-                    const range = document.createRange();
-                    const sel = window.getSelection();
-                    range.selectNodeContents(textEl);
-                    range.collapse(false);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
+                    const r = document.createRange(), s = window.getSelection();
+                    r.selectNodeContents(textEl); r.collapse(false);
+                    s.removeAllRanges(); s.addRange(r);
                 }, 50);
             }
         }
 
-        function fmt(cmd) {
-            document.execCommand(cmd, false, null);
+        /* AUTO-LINKIFY on blur */
+        function linkify(el, noteId) {
+            const html = el.innerHTML;
+            const linked = html.replace(
+                /(?<!href=["']|">)(https?:\/\/[^\s<>"'&]+|www\.[^\s<>"'&]+)/g,
+                (url) => {
+                    const href = url.startsWith('http') ? url : 'https://' + url;
+                    return `<a class="note-link" href="${href}" target="_blank" rel="noopener" contenteditable="false">${url}</a>`;
+                }
+            );
+            if (linked !== html) {
+                el.innerHTML = linked;
+                const n = notes.find(x => x.id === noteId);
+                if (n) { n.content = el.innerHTML; saveNotes(); }
+            }
         }
 
+        /* INSERT LINK — select text → 🔗 Link → becomes clickable */
+        function insertLink(btn) {
+            const textEl = btn.closest('.note-inner').querySelector('.note-text');
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+                flashBtn(btn); return;
+            }
+            const selectedText = sel.toString().trim();
+            if (!selectedText) return;
+
+            let url = selectedText;
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+            const range = sel.getRangeAt(0);
+            const a = document.createElement('a');
+            a.href = url; a.textContent = selectedText;
+            a.className = 'note-link'; a.target = '_blank'; a.rel = 'noopener'; a.contentEditable = 'false';
+            range.deleteContents(); range.insertNode(a);
+            sel.removeAllRanges();
+
+            const n = notes.find(x => x.id === textEl.dataset.id);
+            if (n) { n.content = textEl.innerHTML; n.updated = Date.now(); saveNotes(); }
+        }
+
+        /* REMOVE LINK — click inside a link → ✂ Unlink → plain text */
+        function removeLink(btn) {
+            const textEl = btn.closest('.note-inner').querySelector('.note-text');
+            const sel = window.getSelection();
+            let targetLink = null;
+
+            if (sel && sel.rangeCount > 0) {
+                let node = sel.getRangeAt(0).commonAncestorContainer;
+                while (node && node !== textEl) {
+                    if (node.nodeName === 'A') { targetLink = node; break; }
+                    node = node.parentNode;
+                }
+                if (!targetLink) {
+                    targetLink = [...textEl.querySelectorAll('a.note-link')].find(a => sel.containsNode(a, true));
+                }
+            }
+
+            if (!targetLink) { flashBtn(btn); return; }
+
+            const text = document.createTextNode(targetLink.textContent);
+            targetLink.replaceWith(text);
+
+            const n = notes.find(x => x.id === textEl.dataset.id);
+            if (n) { n.content = textEl.innerHTML; n.updated = Date.now(); saveNotes(); }
+        }
+
+        function flashBtn(btn) {
+            btn.style.background = 'rgba(251,191,36,0.35)';
+            setTimeout(() => btn.style.background = '', 600);
+        }
+
+        function fmt(cmd) { document.execCommand(cmd, false, null); }
+
         function deleteNote(id) {
-            // Show confirm dialog
             const overlay = document.createElement('div');
             overlay.className = 'dialog-overlay';
             overlay.innerHTML = `
@@ -587,32 +678,19 @@
           <button class="dialog-btn cancel" id="dlg-cancel">Cancel</button>
           <button class="dialog-btn confirm-del" id="dlg-confirm">Delete</button>
         </div>
-      </div>
-    `;
+      </div>`;
             document.body.appendChild(overlay);
-
-            // Focus confirm button
             setTimeout(() => overlay.querySelector('#dlg-confirm').focus(), 50);
-
             overlay.querySelector('#dlg-cancel').onclick = () => overlay.remove();
             overlay.querySelector('#dlg-confirm').onclick = () => {
                 overlay.remove();
                 notes = notes.filter(n => n.id !== id);
                 saveNotes();
                 const card = document.querySelector(`.note-card[data-id="${id}"]`);
-                if (card) {
-                    card.style.transition = 'opacity 0.2s, transform 0.2s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.85)';
-                    setTimeout(() => card.remove(), 200);
-                }
+                if (card) { card.style.transition = 'opacity 0.2s, transform 0.2s'; card.style.opacity = '0'; card.style.transform = 'scale(0.85)'; setTimeout(() => card.remove(), 200); }
                 updateEmpty();
             };
-
-            // Close on overlay click
             overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-
-            // Close on Escape
             const onKey = e => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); } };
             document.addEventListener('keydown', onKey);
         }
@@ -621,9 +699,9 @@
             document.getElementById('empty-state').style.display = notes.length === 0 ? 'block' : 'none';
         }
 
-        // Render existing notes
         function init() {
             notes.forEach(note => renderNote(note, false));
+            document.querySelectorAll('.note-text').forEach(el => linkify(el, el.dataset.id));
             updateEmpty();
         }
 
